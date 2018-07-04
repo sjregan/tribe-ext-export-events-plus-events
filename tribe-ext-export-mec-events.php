@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       The Events Calendar Extension: Export Events from Modern Events Calendar
- * Plugin URI:        https://theeventscalendar.com/extensions/tribe-ext-export-mec-events
+ * Plugin URI:        https://theeventscalendar.com/extensions/migrating-events-from-modern-events-calendar
  * Description:       Export Events from Modern Events Calendar
  * Version:           1.0.0
  * Extension Class:   Tribe__Extension__Export_Events_Modern_Events_Calendar
@@ -44,6 +44,10 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 		 * Extension initialization and hooks.
 		 */
 		public function init() {
+
+			// Loads the extension’s translated strings
+			load_plugin_textdomain( 'tribe-ext-export-mec-events', false, basename( dirname( __FILE__ ) ) . '/languages/' );
+
 			add_action( 'admin_init', array( $this, 'add_admin_settings' ) );
 			add_action( 'load-tribe_events_page_' . Tribe__Settings::$parent_slug, array(
 				$this,
@@ -63,34 +67,35 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 
 			$setting_helper->add_field( 'export-defaults-mec', array(
 				'type' => 'html',
-				'html' => '<h3 id="tribe-import-global-settings">' . esc_html__( 'Migration Tools - Modern Events Calendar', 'the-events-calendar' ) . '</h3>',
+				'html' => '<h3 id="tribe-ext-export-mec-events">' . esc_html__( 'Migration Tools - Modern Events Calendar', 'tribe-ext-export-mec-events' ) . '</h3>',
 			), 'imports', 'tribe_aggregator_disable', false );
 
 			$setting_helper->add_field( 'mec_export_events', array(
 				'type' => 'html',
-				'html' => '<fieldset class="tribe-field tribe-field-html"><legend>' . esc_html__( 'Events', 'the-events-calendar' ) . '</legend><div class="tribe-field-wrap">' . $this->export_button( 'export_events', esc_html__( 'Export Events', 'the-events-calendar' ) ) . '<p class="tribe-field-indent description">' . esc_html__( 'Export your events from Modern Events Calendar. Once the download is complete, use the CSV file to import the events to The Events Calendar.', 'the-events-calendar' ) . sprintf( '<a href="%1$s" target="_blank">%2$s</a>', esc_attr( 'https://theeventscalendar.com/knowledgebase/importing-data-from-a-csv-file/' ), esc_html( 'Learn more.' ) ) . '</p></div></fieldset><div class="clear"></div>',
+				'html' => '<fieldset class="tribe-field tribe-field-html"><legend>' . esc_html__( 'Events', 'tribe-ext-export-mec-events' ) . '</legend><div class="tribe-field-wrap">' . $this->export_button( 'export_events', esc_html__( 'Export Events', 'tribe-ext-export-mec-events' ) ) . '<p class="tribe-field-indent description">' . esc_html__( 'Export your events from Modern Event Calendar and use the CSV file to import them to The Event Calendar. Before exporting your data, please make sure that Modern Event Calendar is enabled on your site.
+', 'tribe-ext-export-mec-events' ) . sprintf( '<a href="%1$s" target="_blank">%2$s</a>', esc_attr( 'https://theeventscalendar.com/extensions/migrating-events-from-modern-events-calendar/' ), esc_html( 'Learn more.' ) ) . '</p></div></fieldset><div class="clear"></div>',
 			), 'imports', 'tribe_aggregator_disable', false );
 
 			$setting_helper->add_field( 'mec_export_organizers', array(
 				'type' => 'html',
-				'html' => '<fieldset class="tribe-field tribe-field-html"><legend>' . esc_html__( 'Organizers', 'the-events-calendar' ) . '</legend><div class="tribe-field-wrap">' . $this->export_button( 'export_organizers', esc_html__( 'Export Organizers', 'the-events-calendar' ) ) . '<p class="tribe-field-indent description">' . esc_html__( 'Export your organizers from Modern Events Calendar.', 'the-events-calendar' ) . ' ' . '</p></div></fieldset><div class="clear"></div>',
+				'html' => '<fieldset class="tribe-field tribe-field-html"><legend>' . esc_html__( 'Organizers', 'tribe-ext-export-mec-events' ) . '</legend><div class="tribe-field-wrap">' . $this->export_button( 'export_organizers', esc_html__( 'Export Organizers', 'tribe-ext-export-mec-events' ) ) . '<p class="tribe-field-indent description">' . esc_html__( 'Export your organizers from Modern Events Calendar.', 'tribe-ext-export-mec-events' ) . '</p></div></fieldset><div class="clear"></div>',
 			), 'imports', 'tribe_aggregator_disable', false );
 
 			$setting_helper->add_field( 'mec_export_venues', array(
 				'type' => 'html',
-				'html' => '<fieldset class="tribe-field tribe-field-html"><legend>' . esc_html__( 'Venues', 'the-events-calendar' ) . '</legend><div class="tribe-field-wrap">' . $this->export_button( 'export_venues', esc_html__( 'Export Venues', 'the-events-calendar' ) ) . '<p class="tribe-field-indent description">' . esc_html__( 'Export your venues from Modern Events Calendar.', 'the-events-calendar' ) . '</p></div></fieldset><div class="clear"></div>',
+				'html' => '<fieldset class="tribe-field tribe-field-html"><legend>' . esc_html__( 'Venues', 'tribe-ext-export-mec-events' ) . '</legend><div class="tribe-field-wrap">' . $this->export_button( 'export_venues', esc_html__( 'Export Venues', 'tribe-ext-export-mec-events' ) ) . '<p class="tribe-field-indent description">' . esc_html__( 'Export your venues from Modern Events Calendar.', 'tribe-ext-export-mec-events' ) . '</p></div></fieldset><div class="clear"></div>',
 			), 'imports', 'tribe_aggregator_disable', false );
 		}
 
 		/**
-		 * Make a button to trigger the CSV creation process
+		 * Add a button to trigger the CSV creation process
 		 *
 		 * @param string $text
 		 *
 		 * @return string
 		 */
 		public function export_button( $type, $text = '' ) {
-			$text     = $text ? $text : __( 'Export Events', 'the-events-calendar' );
+			$text     = $text ? $text : __( 'Export Events', 'tribe-ext-export-mec-events' );
 			$settings = Tribe__Settings::instance();
 
 			// get the base settings page url
@@ -108,16 +113,23 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 
 		/**
 		 * If the button is clicked, start working
-		 *
 		 */
 		public function listen_for_export_button() {
+
+			/**
+			 * Don't run the script if Modern Events Calendar is deactivated.
+			 */
+			if ( ! class_exists( 'MEC' ) ) {
+				return;
+			}
+
 			if ( empty( $_REQUEST['export_events'] ) && empty( $_REQUEST['export_organizers'] ) && empty( $_REQUEST['export_venues'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'], 'export_events' ) && ! wp_verify_nonce( $_REQUEST['_wpnonce'], 'export_organizers' ) && ! wp_verify_nonce( $_REQUEST['_wpnonce'], 'export_venues' ) ) {
 				return;
-			} elseif ( ! empty( $_REQUEST['export_events'] ) || wp_verify_nonce( $_REQUEST['_wpnonce'], 'export_events' ) ) {
+			} elseif ( ! empty( $_REQUEST['export_events'] ) && wp_verify_nonce( $_REQUEST['_wpnonce'], 'export_events' ) ) {
 				$this->events_csv_setup();
-			} elseif ( ! empty( $_REQUEST['export_organizers'] ) || wp_verify_nonce( $_REQUEST['_wpnonce'], 'export_organizers' ) ) {
+			} elseif ( ! empty( $_REQUEST['export_organizers'] ) && wp_verify_nonce( $_REQUEST['_wpnonce'], 'export_organizers' ) ) {
 				$this->organizers_csv_setup();
-			} elseif ( ! empty( $_REQUEST['export_venues'] ) || wp_verify_nonce( $_REQUEST['_wpnonce'], 'export_venues' ) ) {
+			} elseif ( ! empty( $_REQUEST['export_venues'] ) && wp_verify_nonce( $_REQUEST['_wpnonce'], 'export_venues' ) ) {
 				$this->venues_csv_setup();
 			}
 		}
@@ -133,7 +145,8 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 
 			global $wpdb;
 
-			$events = $wpdb->get_results( "SELECT t1.post_title,
+			$events = $wpdb->get_results( "
+				  SELECT t1.post_title,
        				t1.post_content,
        				t2.start,
        				t2.end,
@@ -154,7 +167,8 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
   					AND t1.ID = t3.post_id
   					AND t1.ID = t4.post_id
   					AND t3.meta_key = 'mec_organizer_id'
-  					AND t4.meta_key = 'mec_location_id'" );
+  					AND t4.meta_key = 'mec_location_id'
+  			" );
 
 			foreach ( $events as $event ) {
 				$row    = array();
@@ -183,6 +197,7 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			$organizer_data = array();
 
 			global $wpdb;
+
 			/**
 			 * Get the organizers data from Modern Events Calendar and stores it in a variable.
 			 */
@@ -190,7 +205,8 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 				SELECT DISTINCT meta_value 
 				FROM `wp_postmeta` 
 				WHERE meta_key = 'mec_organizer_id' 
-					AND meta_value <> '1'" );
+					AND meta_value <> '1'
+			" );
 
 			foreach ( $organizers as $organizer ) {
 				$row    = array();
@@ -222,7 +238,8 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 				SELECT DISTINCT meta_value 
 				FROM `wp_postmeta` 
 				WHERE meta_key = 'mec_location_id' 
-					AND meta_value <> '1'" );
+					AND meta_value <> '1'
+			" );
 
 			foreach ( $venues as $venue ) {
 				$row    = array();
@@ -338,8 +355,11 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 		 */
 		public function generate_csv( $csv_file_name, $header, $data ) {
 
-			$fh = @fopen( 'php://output', 'w' );
+			$fh = fopen( 'php://output', 'w' );
 
+			/**
+			 * Write the file header for correct encoding ( UTF8 )
+			 */
 			fprintf( $fh, chr( 0xEF ) . chr( 0xBB ) . chr( 0xBF ) );
 
 			header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
