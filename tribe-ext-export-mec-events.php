@@ -271,7 +271,7 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			 * The name of the columns in the CSV file.
 			 */
 			$header = array(
-				0 => "Event_Name",
+				0 => 'Event_Name',
 				1 => 'Event Description',
 				2 => 'Event Start Date',
 				4 => 'Event End Date',
