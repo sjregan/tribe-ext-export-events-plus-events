@@ -271,15 +271,15 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			 * The name of the columns in the CSV file.
 			 */
 			$header = array(
-				0 => 'Title',
-				1 => 'Description',
-				2 => 'Start Date',
-				4 => 'End Date',
-				3 => 'Start Time',
-				5 => 'End Time',
-				6 => 'Venue',
-				7 => 'Organizer Name',
-				8 => 'Cost',
+				0 => "Event_Name",
+				1 => 'Event Description',
+				2 => 'Event Start Date',
+				4 => 'Event End Date',
+				3 => 'Event Start Time',
+				5 => 'Event End Time',
+				6 => 'Event Venue Name',
+				7 => 'Event Organizer Name',
+				8 => 'Event Cost',
 			);
 
 			/**
@@ -304,7 +304,7 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			 * The name of the columns in the CSV file.
 			 */
 			$header = array(
-				0 => 'Organizer Name',
+				0 => 'Organizer_Name',
 				1 => 'Organizer Email',
 				2 => 'Organizer Phone',
 				3 => 'Organizer Website',
@@ -333,7 +333,7 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			 * The name of the columns in the CSV file.
 			 */
 			$header = array(
-				0 => 'Venue Name',
+				0 => 'Venue_Name',
 				1 => 'Venue Address',
 				2 => 'Venue Latitude',
 				3 => 'Venue Longitude',
