@@ -146,7 +146,8 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			global $wpdb;
 
 			$events = $wpdb->get_results( "
-				  SELECT t1.post_title,
+				  SELECT t1.ID,
+					t1.post_title,
        				t1.post_content,
        				t2.start,
        				t2.end,
@@ -158,7 +159,11 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
   					(SELECT sum(meta_value)
    						FROM wp_postmeta AS t5
    						WHERE t1.ID = t5.post_id
-     						AND t5.meta_key = 'mec_cost') AS cost
+						AND t5.meta_key = 'mec_cost') AS cost,
+					(SELECT meta_value
+						FROM wp_postmeta AS t5
+						WHERE t1.ID = t5.post_id
+						AND t5.meta_key = 'mec_read_more') AS website
 				  FROM `wp_posts` AS t1
 				  INNER JOIN wp_mec_events AS t2
 				  INNER JOIN wp_postmeta AS t3
@@ -181,6 +186,7 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 				$row[6] = ( get_term( $event->venue_id )->name != 'Uncategorized' ? get_term( $event->venue_id )->name : '' );
 				$row[7] = ( get_term( $event->organizer_id )->name != 'Uncategorized' ? get_term( $event->organizer_id )->name : '' );
 				$row[8] = $event->cost;
+				$row[9] = $event->website;
 
 				$event_data[] = $row;
 			}
@@ -201,20 +207,21 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			/**
 			 * Get the organizers data from Modern Events Calendar and stores it in a variable.
 			 */
+
 			$organizers = $wpdb->get_results( "
-				SELECT DISTINCT meta_value 
-				FROM `wp_postmeta` 
-				WHERE meta_key = 'mec_organizer_id' 
-					AND meta_value <> '1'
+				SELECT DISTINCT term_id, description
+				FROM wp_term_taxonomy
+				WHERE taxonomy = 'mec_organizer'
 			" );
 
 			foreach ( $organizers as $organizer ) {
 				$row    = array();
-				$row[0] = get_term( $organizer->meta_value )->name;
-				$row[1] = get_term_meta( $organizer->meta_value, 'email', true );
-				$row[2] = get_term_meta( $organizer->meta_value, 'tel', true );
-				$row[3] = get_term_meta( $organizer->meta_value, 'url', true );
-				$row[4] = get_term_meta( $organizer->meta_value, 'thumbnail', true );
+				$row[0] = get_term( $organizer->term_id )->name;
+				$row[1] = $organizer->description;
+				$row[2] = get_term_meta( $organizer->term_id, 'email', true );
+				$row[3] = get_term_meta( $organizer->term_id, 'tel', true );
+				$row[4] = get_term_meta( $organizer->term_id, 'url', true );
+				$row[5] = get_term_meta( $organizer->term_id, 'thumbnail', true );
 
 				$organizer_data[] = $row;
 			}
@@ -235,19 +242,19 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			 * Get the venues data from Modern Events Calendar and stores it in a variable.
 			 */
 			$venues = $wpdb->get_results( "
-				SELECT DISTINCT meta_value 
-				FROM `wp_postmeta` 
-				WHERE meta_key = 'mec_location_id' 
-					AND meta_value <> '1'
+				SELECT DISTINCT term_id, description
+				FROM wp_term_taxonomy
+				WHERE taxonomy = 'mec_location'
 			" );
 
 			foreach ( $venues as $venue ) {
 				$row    = array();
-				$row[0] = get_term( $venue->meta_value )->name;
-				$row[1] = get_term_meta( $venue->meta_value, 'address', true );
-				$row[2] = get_term_meta( $venue->meta_value, 'latitude', true );
-				$row[3] = get_term_meta( $venue->meta_value, 'longitude', true );
-				$row[4] = get_term_meta( $venue->meta_value, 'thumbnail', true );
+				$row[0] = get_term( $venue->term_id )->name;
+				$row[1] = $venue->description;
+				$row[2] = get_term_meta( $venue->term_id, 'address', true );
+				$row[3] = ( get_term_meta( $venue->term_id, 'latitude', true ) == 0 ? '' : get_term_meta( $venue->term_id, 'latitude', true ) );
+				$row[4] = ( get_term_meta( $venue->term_id, 'longitude', true ) == 0 ? '' : get_term_meta( $venue->term_id, 'longitude', true ) );
+				$row[5] = get_term_meta( $venue->term_id, 'thumbnail', true );
 
 				$venue_data[] = $row;
 			}
@@ -280,6 +287,7 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 				6 => 'Event Venue Name',
 				7 => 'Event Organizer Name',
 				8 => 'Event Cost',
+				9 => 'Event Website',
 			);
 
 			/**
@@ -305,10 +313,11 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			 */
 			$header = array(
 				0 => 'Organizer_Name',
-				1 => 'Organizer Email',
-				2 => 'Organizer Phone',
-				3 => 'Organizer Website',
-				4 => 'Organizer Featured Image',
+				1 => 'Organizer Description',
+				2 => 'Organizer Email',
+				3 => 'Organizer Phone',
+				4 => 'Organizer Website',
+				5 => 'Organizer Featured Image',
 			);
 
 			/**
@@ -334,10 +343,11 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			 */
 			$header = array(
 				0 => 'Venue_Name',
-				1 => 'Venue Address',
-				2 => 'Venue Latitude',
-				3 => 'Venue Longitude',
-				4 => 'Venue Featured Image',
+				1 => 'Venue Description',
+				2 => 'Venue Address',
+				3 => 'Venue Latitude',
+				4 => 'Venue Longitude',
+				5 => 'Venue Featured Image',
 			);
 
 			/**
