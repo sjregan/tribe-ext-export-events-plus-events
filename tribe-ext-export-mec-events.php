@@ -142,6 +142,8 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 		public function get_event_data() {
 
 			$event_data = array();
+			$event_tag  = array();
+			$event_cat  = array();
 
 			global $wpdb;
 
@@ -157,17 +159,17 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
        				t4.meta_value AS venue_id,
 
   					(SELECT sum(meta_value)
-   						FROM wp_postmeta AS t5
+   						FROM {$wpdb->postmeta} AS t5
    						WHERE t1.ID = t5.post_id
 						AND t5.meta_key = 'mec_cost') AS cost,
 					(SELECT meta_value
-						FROM wp_postmeta AS t5
+						FROM {$wpdb->postmeta} AS t5
 						WHERE t1.ID = t5.post_id
 						AND t5.meta_key = 'mec_read_more') AS website
-				  FROM `wp_posts` AS t1
-				  INNER JOIN wp_mec_events AS t2
-				  INNER JOIN wp_postmeta AS t3
-				  INNER JOIN wp_postmeta AS t4
+				  FROM {$wpdb->posts} AS t1
+				  INNER JOIN {$wpdb->prefix}mec_events AS t2
+				  INNER JOIN {$wpdb->postmeta} AS t3
+				  INNER JOIN {$wpdb->postmeta} AS t4
 				  WHERE t1.ID = t2.post_id
   					AND t1.ID = t3.post_id
   					AND t1.ID = t4.post_id
@@ -175,18 +177,36 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
   					AND t4.meta_key = 'mec_location_id'
   			" );
 
+			$events_taxonomy = $wpdb->get_results( "
+				SELECT t1.object_id AS post_id,
+					GROUP_CONCAT(DISTINCT IF(t3.taxonomy = 'post_tag', t2.name, NULL), '') AS post_tag,
+					GROUP_CONCAT(DISTINCT IF(t3.taxonomy = 'mec_category', t2.name, NULL), '') AS post_category
+				FROM {$wpdb->term_relationships} AS t1 
+				INNER JOIN {$wpdb->terms} AS t2 ON t1.term_taxonomy_id = t2.term_id
+				INNER JOIN {$wpdb->term_taxonomy} AS t3 ON t2.term_id = t3.term_id
+				WHERE t3.taxonomy IN ('post_tag', 'mec_category')
+				GROUP BY t1.object_id
+			" );
+
+			foreach ( $events_taxonomy as $event_taxonomy ) {
+				$event_tag[ $event_taxonomy->post_id ] = $event_taxonomy->post_tag;
+				$event_cat[ $event_taxonomy->post_id ] = $event_taxonomy->post_category;
+			}
+
 			foreach ( $events as $event ) {
-				$row    = array();
-				$row[0] = $event->post_title;
-				$row[1] = $event->post_content;
-				$row[2] = ( $event->start == '0000-00-00' ? '' : $event->start );
-				$row[3] = ( $event->end == '0000-00-00' ? $event->start : $event->end );
-				$row[4] = gmdate( 'H:i:s', $event->time_start );
-				$row[5] = gmdate( 'H:i:s', $event->time_end );
-				$row[6] = ( get_term( $event->venue_id )->name != 'Uncategorized' ? get_term( $event->venue_id )->name : '' );
-				$row[7] = ( get_term( $event->organizer_id )->name != 'Uncategorized' ? get_term( $event->organizer_id )->name : '' );
-				$row[8] = $event->cost;
-				$row[9] = $event->website;
+				$row     = array();
+				$row[0]  = $event->post_title;
+				$row[1]  = $event->post_content;
+				$row[2]  = ( $event->start == '0000-00-00' ? '' : $event->start );
+				$row[3]  = ( $event->end == '0000-00-00' ? $event->start : $event->end );
+				$row[4]  = gmdate( 'H:i:s', $event->time_start );
+				$row[5]  = gmdate( 'H:i:s', $event->time_end );
+				$row[6]  = ( get_term( $event->venue_id )->name != 'Uncategorized' ? get_term( $event->venue_id )->name : '' );
+				$row[7]  = ( get_term( $event->organizer_id )->name != 'Uncategorized' ? get_term( $event->organizer_id )->name : '' );
+				$row[8]  = $event->cost;
+				$row[9]  = $event->website;
+				$row[10] = ( isset( $event_tag[ $event->ID ] ) ? $event_tag[ $event->ID ] : '' );
+				$row[11] = ( isset( $event_cat[ $event->ID ] ) ? $event_cat[ $event->ID ] : '' );
 
 				$event_data[] = $row;
 			}
@@ -210,7 +230,7 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 
 			$organizers = $wpdb->get_results( "
 				SELECT DISTINCT term_id, description
-				FROM wp_term_taxonomy
+				FROM {$wpdb->term_taxonomy}
 				WHERE taxonomy = 'mec_organizer'
 			" );
 
@@ -243,7 +263,7 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			 */
 			$venues = $wpdb->get_results( "
 				SELECT DISTINCT term_id, description
-				FROM wp_term_taxonomy
+				FROM {$wpdb->term_taxonomy}
 				WHERE taxonomy = 'mec_location'
 			" );
 
@@ -278,16 +298,18 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			 * The name of the columns in the CSV file.
 			 */
 			$header = array(
-				0 => 'Event_Name',
-				1 => 'Event Description',
-				2 => 'Event Start Date',
-				4 => 'Event End Date',
-				3 => 'Event Start Time',
-				5 => 'Event End Time',
-				6 => 'Event Venue Name',
-				7 => 'Event Organizer Name',
-				8 => 'Event Cost',
-				9 => 'Event Website',
+				0  => 'Event_Name',
+				1  => 'Event Description',
+				2  => 'Event Start Date',
+				4  => 'Event End Date',
+				3  => 'Event Start Time',
+				5  => 'Event End Time',
+				6  => 'Event Venue Name',
+				7  => 'Event Organizer Name',
+				8  => 'Event Cost',
+				9  => 'Event Website',
+				10 => 'Event Tags',
+				11 => 'Event Category',
 			);
 
 			/**
