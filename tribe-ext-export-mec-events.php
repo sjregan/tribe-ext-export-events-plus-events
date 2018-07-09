@@ -159,17 +159,17 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
        				t4.meta_value AS venue_id,
 
   					(SELECT sum(meta_value)
-   						FROM wp_postmeta AS t5
+   						FROM {$wpdb->postmeta} AS t5
    						WHERE t1.ID = t5.post_id
 						AND t5.meta_key = 'mec_cost') AS cost,
 					(SELECT meta_value
-						FROM wp_postmeta AS t5
+						FROM {$wpdb->postmeta} AS t5
 						WHERE t1.ID = t5.post_id
 						AND t5.meta_key = 'mec_read_more') AS website
-				  FROM `wp_posts` AS t1
-				  INNER JOIN wp_mec_events AS t2
-				  INNER JOIN wp_postmeta AS t3
-				  INNER JOIN wp_postmeta AS t4
+				  FROM {$wpdb->posts} AS t1
+				  INNER JOIN {$wpdb->prefix}mec_events AS t2
+				  INNER JOIN {$wpdb->postmeta} AS t3
+				  INNER JOIN {$wpdb->postmeta} AS t4
 				  WHERE t1.ID = t2.post_id
   					AND t1.ID = t3.post_id
   					AND t1.ID = t4.post_id
@@ -181,9 +181,9 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 				SELECT t1.object_id AS post_id,
 					GROUP_CONCAT(DISTINCT IF(t3.taxonomy = 'post_tag', t2.name, NULL), '') AS post_tag,
 					GROUP_CONCAT(DISTINCT IF(t3.taxonomy = 'mec_category', t2.name, NULL), '') AS post_category
-				FROM `wp_term_relationships` AS t1 
-				INNER JOIN wp_terms AS t2 ON t1.term_taxonomy_id = t2.term_id
-				INNER JOIN wp_term_taxonomy AS t3 ON t2.term_id = t3.term_id
+				FROM {$wpdb->term_relationships} AS t1 
+				INNER JOIN {$wpdb->terms} AS t2 ON t1.term_taxonomy_id = t2.term_id
+				INNER JOIN {$wpdb->term_taxonomy} AS t3 ON t2.term_id = t3.term_id
 				WHERE t3.taxonomy IN ('post_tag', 'mec_category')
 				GROUP BY t1.object_id
 			" );
@@ -230,7 +230,7 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 
 			$organizers = $wpdb->get_results( "
 				SELECT DISTINCT term_id, description
-				FROM wp_term_taxonomy
+				FROM {$wpdb->term_taxonomy}
 				WHERE taxonomy = 'mec_organizer'
 			" );
 
@@ -263,7 +263,7 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			 */
 			$venues = $wpdb->get_results( "
 				SELECT DISTINCT term_id, description
-				FROM wp_term_taxonomy
+				FROM {$wpdb->term_taxonomy}
 				WHERE taxonomy = 'mec_location'
 			" );
 
