@@ -142,8 +142,8 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 		public function get_event_data() {
 
 			$event_data = array();
-			$data_tag   = array();
-			$data_cat   = array();
+			$event_tag  = array();
+			$event_cat  = array();
 
 			global $wpdb;
 
@@ -189,8 +189,8 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 			" );
 
 			foreach ( $events_taxonomy as $event_taxonomy ) {
-				$data_tag[ $event_taxonomy->post_id ] = $event_taxonomy->post_tag;
-				$data_cat[ $event_taxonomy->post_id ] = $event_taxonomy->post_category;
+				$event_tag[ $event_taxonomy->post_id ] = $event_taxonomy->post_tag;
+				$event_cat[ $event_taxonomy->post_id ] = $event_taxonomy->post_category;
 			}
 
 			foreach ( $events as $event ) {
@@ -205,8 +205,8 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
 				$row[7]  = ( get_term( $event->organizer_id )->name != 'Uncategorized' ? get_term( $event->organizer_id )->name : '' );
 				$row[8]  = $event->cost;
 				$row[9]  = $event->website;
-				$row[10] = ( isset( $data_tag[ $event->ID ] ) ? $data_tag[ $event->ID ] : '' );
-				$row[11] = ( isset( $data_cat[ $event->ID ] ) ? $data_cat[ $event->ID ] : '' );
+				$row[10] = ( isset( $event_tag[ $event->ID ] ) ? $event_tag[ $event->ID ] : '' );
+				$row[11] = ( isset( $event_cat[ $event->ID ] ) ? $event_cat[ $event->ID ] : '' );
 
 				$event_data[] = $row;
 			}
