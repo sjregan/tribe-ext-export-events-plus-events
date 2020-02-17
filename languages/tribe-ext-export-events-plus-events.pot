@@ -1,0 +1,61 @@
+# Copyright (C) 2020 Zipline
+# This file is distributed under the same license as the The Events Calendar Extension: Export Events from Events + plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: The Events Calendar Extension: Export Events from Events + 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/tribe-ext-export-events-plus-events\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2020-02-17T07:08:48+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.4.0\n"
+"X-Domain: tribe-ext-export-events-plus-events\n"
+
+#. Plugin Name of the plugin
+msgid "The Events Calendar Extension: Export Events from Events +"
+msgstr ""
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+msgid "https://wearezipline.com"
+msgstr ""
+
+#. Description of the plugin
+msgid "Export Events from WPMU Dev Events +"
+msgstr ""
+
+#. Author of the plugin
+msgid "Zipline"
+msgstr ""
+
+#: tribe-ext-export-events-plus-events.php:70
+msgid "Migration Tools - Events +"
+msgstr ""
+
+#: tribe-ext-export-events-plus-events.php:75
+msgid "Events"
+msgstr ""
+
+#: tribe-ext-export-events-plus-events.php:75
+#: tribe-ext-export-events-plus-events.php:97
+msgid "Export Events"
+msgstr ""
+
+#: tribe-ext-export-events-plus-events.php:75
+msgid "Export your events from Events + and use the CSV file to import them to The Event Calendar. Before exporting your data, please make sure that Events + is enabled on your site. Before importing your data ensure Google Maps Pro by WPMU Dev is disabled."
+msgstr ""
+
+#: tribe-ext-export-events-plus-events.php:85
+msgid "Venues"
+msgstr ""
+
+#: tribe-ext-export-events-plus-events.php:85
+msgid "Export Venues"
+msgstr ""
+
+#: tribe-ext-export-events-plus-events.php:85
+msgid "Export your venues from Events +."
+msgstr ""
