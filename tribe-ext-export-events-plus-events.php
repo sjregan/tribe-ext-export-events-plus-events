@@ -299,7 +299,7 @@ if ( class_exists( 'Tribe__Extension' ) && ! class_exists( 'Tribe__Extension__Ex
                                     "Month: %s. Day: %s. Weekday: %s. Week: %s. Time: %s. Duration: %s.\nFrom %s to %s.",
                                     $recurring_month,
                                     $recurring_day,
-                                    $recurring_weekday,
+                                    is_array( $recurring_weekday ) ? print_r( $recurring_weekday, 1 ) : $recurring_weekday,
                                     $recurring_week,
                                     $recurring_time,
                                     $recurring_duration,
